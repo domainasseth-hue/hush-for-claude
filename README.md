@@ -26,7 +26,8 @@ Every word Claude writes enters the context window. Claude then re-reads its own
 - First output is always a tool call, never text
 - Zero text between tool calls
 - No phase announcements, no self-narration, no mid-task commentary
-- One ultra-compressed summary at the end — `file: what changed` format
+- One ultra-compressed summary at the end — `files:` / `changes:` / `flagged:` sections, 20 lines max
+- Inline code comments capped at one line, no TODOs left behind
 
 Tool call indicators (bash, file reads, MCP) still show. Those are action visibility, not narration.
 
@@ -64,17 +65,22 @@ Now the order service — core sequencing fix.
 
 task complete
 
-config/db.js: fixed
-services/inventoryService.js: fixed
-services/paymentService.js: fixed
-services/orderService.js: fixed
+files:
+- config/db.js: fixed
+- services/inventoryService.js: fixed
+- services/paymentService.js: fixed
+- services/orderService.js: fixed
 
-db.js line 37: atomic debitBalance added, stops concurrent wallet overdraw
-db.js line 84: atomic reserveStockIfAvailable closes TOCTOU gap
-inventoryService.js line 29: partial reservations released on any item failure
-paymentService.js line 13: wallet debit atomic, credits back if record write fails
-orderService.js line 61: order row created before charge, payment always has an order
-orderService.js line 157: status validated against VALID_TRANSITIONS
+changes:
+- db.js line 37: atomic debitBalance added, stops concurrent wallet overdraw
+- db.js line 84: atomic reserveStockIfAvailable closes TOCTOU gap
+- inventoryService.js line 29: partial reservations released on any item failure
+- paymentService.js line 13: wallet debit atomic, credits back if record write fails
+- orderService.js line 61: order row created before charge, payment always has an order
+- orderService.js line 157: status validated against VALID_TRANSITIONS
+
+flagged:
+- services/authService.js: hardcoded JWT secret, outside scope
 ```
 
 ---

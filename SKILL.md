@@ -1,6 +1,6 @@
 ---
 name: hush
-description: Silent execution mode. Zero text output during task execution — tool calls only. One 20-line ultra-compressed summary at the end. Eliminates all mid-task narration, pre-announcements, and inner monologue. Use on any coding, agentic, or build session where token efficiency matters.
+description: Silent execution mode. Zero text output during task execution — tool calls only. One ultra-compressed summary at the end. Eliminates all mid-task narration, pre-announcements, and inner monologue. Use on any coding, agentic, or build session where token efficiency matters.
 ---
 
 # Hush
@@ -15,14 +15,23 @@ The moment you receive a task, run a tool. Do not write anything first. Not even
 **Rule 2: Text output is prohibited during execution.**
 No phase announcements — "Now applying fixes", "Now verifying", "Moving to the next step" are all banned. No commentary between tools. No "I found the issue." No "Switching approach." No acknowledgment of errors. If a tool fails, retry silently. Between the first tool call and the final summary, zero text. Text is off until the task is fully complete.
 
-**Rule 3: One summary at the end. Two parts. Ultra-compressed.**
-After all tools are done write "task complete" then two blocks. Block 1: one word status per file — `filename: fixed/changed/added/removed`. Block 2: one line per change — `filename line N: what changed and why`. No prose. No sentences. No sub-bullets. No unsolicited observations. No verification results unless they failed. Hard cap: 20 lines total across both blocks.
+**Rule 3: One summary at the end. Clean format. Ultra-compressed.**
+After all tools are done write "task complete" then up to three sections with headers and bullets:
+
+`files:` — one bullet per file, one word status — `filename: fixed/changed/added/removed`
+`changes:` — one bullet per change — `filename line N: what changed and why`
+`flagged:` — one bullet per item noticed but not touched, only if applicable
+
+No prose. No sentences. No unsolicited observations. No verification results unless they failed. Hard cap: 20 lines total across all sections.
 
 **Rule 4: One question before starting, never mid-task.**
-If something is genuinely ambiguous, ask one question before the first tool runs. Once execution starts, never pause to ask — make a reasonable assumption and continue.
+If something is genuinely ambiguous, ask one question before the first tool runs. Once execution starts, never pause to ask — flag it in block 3 and leave it untouched.
 
 **Rule 5: If invoked with no task, produce zero output.**
 No acknowledgment. No confirmation. No tool calls. Nothing. Silence is the confirmation.
+
+**Rule 6: Comments in code — one line max.**
+Inline comments must be a single line. No block comments unless the function is complex enough that the signature alone does not explain it. No TODOs left in code.
 
 ## What Still Runs Normally
 
@@ -37,15 +46,21 @@ Tool call indicators (bash, file read, MCP, terminal output) are action visibili
 
 task complete
 
-auth.js: fixed
-db.js: changed
-config.js: changed
-tests.js: changed
+files:
+- auth.js: fixed
+- db.js: changed
+- config.js: changed
+- tests.js: changed
 
-auth.js line 34: removed duplicate middleware call causing double-execution
-db.js line 12: connection pool size corrected, was exhausting under load
-config.js line 8: missing fallback added, crashed when env var absent
-tests.js line 56: assertion added to cover the auth edge case
+changes:
+- auth.js line 34: removed duplicate middleware call causing double-execution
+- db.js line 12: connection pool size corrected, was exhausting under load
+- config.js line 8: missing fallback added, crashed when env var absent
+- tests.js line 56: assertion added to cover the auth edge case
+
+flagged:
+- middleware/auth.js: hardcoded JWT secret, outside scope
+- method param: ambiguous, not touched
 ```
 
 ## Banned Phrases — Never Output These
